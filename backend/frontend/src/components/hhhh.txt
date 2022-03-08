@@ -1,0 +1,138 @@
+import React, { useContext, useEffect, useState } from "react";
+import { useTable, useExpanded } from 'react-table'
+
+import moment from "moment";
+
+import ErrorMessage from "./ErrorMessage";
+import LeadModal from "./LeadModal";
+import { UserContext } from "../context/UserContext";
+
+
+const Table = () => {
+  const [token] = useContext(UserContext);
+  const [pokemons, setPokemons] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [activeModal, setActiveModal] = useState(false);
+  const [id, setId] = useState(null);
+
+  const handleUpdate = async (id) => {
+    setId(id);
+    setActiveModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    const requestOptions = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    };
+    const response = await fetch(`/api/pokemons/${id}`, requestOptions);
+    if (!response.ok) {
+      setErrorMessage("Failed to delete pokemon");
+    }
+    getPokemons();
+  };
+  const handleInfo= async (name) => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    };
+    const response = await fetch(`/api/pokemons/${name}/info`, requestOptions);
+    if (!response.ok) {
+      setErrorMessage("Failed to get pokemon info");
+    }
+    getPokemons();
+  };
+
+  const getPokemons = async () => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    };
+    const response = await fetch("/api/pokemons", requestOptions);
+    if (!response.ok) {
+      setErrorMessage("Something went wrong. Couldn't load the pokemons");
+    } else {
+      const data = await response.json();
+      setPokemons(data);
+      setLoaded(true);
+    }
+  };
+
+  useEffect(() => {
+    getPokemons();
+  }, []);
+
+  const handleModal = () => {
+    setActiveModal(!activeModal);
+    getPokemons();
+    setId(null);
+  };
+
+  return (
+    <>
+      <LeadModal
+        active={activeModal}
+        handleModal={handleModal}
+        token={token}
+        id={id}
+        setErrorMessage={setErrorMessage}
+      />
+      <button
+        className="button is-fullwidth mb-5 is-primary"
+        onClick={() => setActiveModal(true)}
+      >
+        ADD POKEMON
+      </button>
+      <ErrorMessage message={errorMessage} />
+      {loaded && pokemons ? (
+        <table className="table is-fullwidth">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Last Updated</th>
+              <th>Actions</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            {pokemons.map((pokemon) => (
+              <tr key={pokemon.id}>
+                <td>{pokemon.name}</td>
+
+                <td>{moment(pokemon.date_last_updated).format("MMM Do YY")}</td>
+                <td>
+                <button
+                    className="button mr-4 is-info is-light"
+                    onClick={() => handleInfo(pokemon.name)}
+                  >
+                    Info
+                  </button>
+                  <button
+                    className="button mr-4 is-danger is-light"
+                    onClick={() => handleDelete(pokemon.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>Loading</p>
+      )}
+    </>
+  );
+};
+
+export default Table;
