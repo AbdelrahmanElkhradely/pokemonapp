@@ -20,14 +20,18 @@ const Login = () => {
 
     const response = await fetch("/api/token", requestOptions);
     console.log(response);
-    
-    const data = await response.json();
-
-    if (!response.ok) {
+      try {
+     const data = await response.json();
+      if (!response.ok) {
       setErrorMessage(data.detail);
     } else {
       setToken(data.access_token);
     }
+  } catch(e) {
+    console.log("error");
+  }
+
+  
   };
 
   const handleSubmit = (e) => {
