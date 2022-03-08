@@ -95,7 +95,7 @@ async def get_pokemon_info(
     #return JSONResponse(content=json_compatible_item_data)
     return{r.text}
 
-@app.get("/api")
+@app.get("/")
 async def root():
     return {"message": "Welcome to pokemons world"}
 
