@@ -19,7 +19,7 @@ const Login = () => {
     };
 
     const response = await fetch("/api/token", requestOptions);
-    console.log(response)
+    console.log(response);
     
     const data = await response.json();
 
