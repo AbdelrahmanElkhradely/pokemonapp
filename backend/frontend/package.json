@@ -42,4 +42,6 @@
     ]
   },
   "proxy": "https://edvoracompanypokemonapp.herokuapp.com"
+  "homepage": "."
+
 }
