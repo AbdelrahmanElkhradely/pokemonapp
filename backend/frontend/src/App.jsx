@@ -25,7 +25,9 @@ const App = () => {
       },
     };
     const response = await fetch("/", requestOptions);
+    console.log(response);
     const data = await response.json();
+    console.log(data);
 
     if (!response.ok) {
       console.log("something messed up");
